@@ -1,0 +1,1 @@
+{"root":["./src/calibration.ts","./src/canonical.ts","./src/client.ts","./src/cost.ts","./src/decision-payload.ts","./src/diagnostics.ts","./src/diff.ts","./src/errors.ts","./src/index.ts","./src/lineage.ts","./src/ports.ts","./src/receipt.ts","./src/refs.ts","./src/request.ts","./src/version.ts"],"errors":true,"version":"5.8.3"}

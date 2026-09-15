@@ -1,0 +1,42 @@
+name: ingest-nightly
+
+on:
+  schedule: [{ cron: '17 3 * * *' }]
+  workflow_dispatch:
+    inputs:
+      dry_run: { type: boolean, default: true }
+
+concurrency:
+  group: ingest
+  cancel-in-progress: false
+
+jobs:
+  ingest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm turbo run build --filter=@camefa/engine-ingest...
+
+      - name: Run ingestion
+        env:
+          DATABASE_URL: ${{ secrets.INGEST_DATABASE_URL }}
+        run: |
+          pnpm camefa-ingest ingest \
+            --sources=ontology-packs/camera.core/sources.json \
+            --targets=ontology-packs/camera.core/targets.json \
+            --max-failure-rate=0.2 \
+            ${{ inputs.dry_run && '--dry-run' || '' }} \
+            --out=ingest-run.json
+
+      - name: Coverage gate
+        run: pnpm camefa-ingest coverage --run=ingest-run.json --requirements=ontology-packs/camera.core/coverage.json
+
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with: { name: ingest-run, path: ingest-run.json }
+Copy

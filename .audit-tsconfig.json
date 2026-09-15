@@ -1,0 +1,22 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "baseUrl": ".",
+    "paths": {
+      "@camefa/engine-kernel": ["packages/engine-kernel/src/index.ts"],
+      "@camefa/engine-ontology": ["packages/engine-ontology/src/index.ts"],
+      "@camefa/engine-capability": ["packages/engine-capability/src/index.ts"],
+      "@camefa/engine-reasoning": ["packages/engine-reasoning/src/index.ts"],
+      "@camefa/engine-articulation": ["packages/engine-articulation/src/index.ts"],
+      "@camefa/engine-contracts": ["packages/engine-contracts/src/index.ts"],
+      "@camefa/engine-runtime": ["packages/engine-runtime/src/index.ts"],
+      "@camefa/engine-ingest": ["packages/engine-ingest/src/index.ts"],
+      "@camefa/engine-adjudication": ["packages/engine-adjudication/src/index.ts"],
+      "@camefa/engine-testkit": ["packages/engine-testkit/src/index.ts"]
+    },
+    "types": []
+  },
+  "include": ["packages/*/src/**/*.ts", "ontology-packs/*/src/**/*.ts", "/tmp/camefa-node-ambient.d.ts"],
+  "exclude": ["**/dist/**"]
+}

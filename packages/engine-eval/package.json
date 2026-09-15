@@ -1,0 +1,25 @@
+{
+  "name": "@camefa/engine-eval",
+  "version": "0.0.0",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "bin": {
+    "camefa-eval": "./dist/cli.js"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@camefa/engine-contracts": "workspace:*",
+    "@camefa/engine-kernel": "workspace:*",
+    "@camefa/engine-runtime": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "22.5.4",
+    "typescript": "5.5.4",
+    "vitest": "2.0.5"
+  }
+}

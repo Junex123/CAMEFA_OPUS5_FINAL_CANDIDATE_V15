@@ -1,0 +1,7 @@
+{
+  "maxWinnerFlipRate": 0.15,
+  "maxTauP95": 0.25,
+  "maxEliminationFlipRate": 0.05,
+  "maxCostP95Ratio": 1.4,
+  "minComparedFraction": 0.9
+}

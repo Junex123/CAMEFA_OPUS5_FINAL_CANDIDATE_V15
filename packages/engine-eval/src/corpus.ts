@@ -1,0 +1,5 @@
+import { canonicalHash, err, ok, type Result } from '@camefa/engine-contracts';
+export interface GoldenQuestion { readonly id:string; readonly label:string; readonly epoch:{id:string;version?:string}; readonly request:unknown; readonly stratum:string; readonly baselineReceiptId?:string|null; readonly expectations?:readonly unknown[]; }
+export interface GoldenCorpus { readonly epoch:{id:string;version?:string}; readonly fingerprint:string; readonly questions:readonly GoldenQuestion[]; }
+export function parseGoldenQuestion(raw:string):Result<GoldenQuestion> { try { const q=JSON.parse(raw) as GoldenQuestion; if(!q.id||!q.epoch?.id)return err([{code:'corpus.shape',message:'golden question requires id and epoch',severity:'error'}]); return ok(q); } catch(e){ return err([{code:'corpus.malformed',message:(e as Error).message,severity:'error'}]); } }
+export function fingerprintCorpus(questions:readonly GoldenQuestion[],epoch:{id:string;version?:string}):string { return canonicalHash({epoch,questions:[...questions].sort((a,b)=>a.id.localeCompare(b.id))}); }

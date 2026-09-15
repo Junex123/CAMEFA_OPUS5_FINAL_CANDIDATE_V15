@@ -1,0 +1,22 @@
+{
+  "name": "camefa-engine",
+  "private": true,
+  "packageManager": "pnpm@9.7.0",
+  "engines": {
+    "node": ">=20.11"
+  },
+  "scripts": {
+    "build": "turbo run build",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "lint": "turbo run lint",
+    "verify": "pnpm typecheck && pnpm test && pnpm build",
+    "pack": "bash tools/pack.sh",
+    "dev": "pnpm --filter @camefa/web dev"
+  },
+  "devDependencies": {
+    "turbo": "2.0.9",
+    "typescript": "5.5.4",
+    "vitest": "2.0.5"
+  }
+}

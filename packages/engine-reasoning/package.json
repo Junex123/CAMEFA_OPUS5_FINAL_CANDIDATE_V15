@@ -1,0 +1,32 @@
+{
+  "name": "@camefa/engine-reasoning",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@camefa/engine-capability": "workspace:*",
+    "@camefa/engine-contracts": "workspace:*",
+    "@camefa/engine-kernel": "workspace:*",
+    "@camefa/engine-ontology": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "5.5.4",
+    "vitest": "2.0.5"
+  }
+}

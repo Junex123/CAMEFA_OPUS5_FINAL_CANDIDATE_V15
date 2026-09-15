@@ -1,0 +1,1 @@
+import { z } from 'zod'; export const SubmitSchema=z.object({leaseToken:z.string(),itemId:z.string(),verdict:z.unknown(),certainty:z.number(),elapsedMs:z.number()}); export const SkipSchema=z.object({leaseToken:z.string(),itemId:z.string()}); export const UnblindSchema=z.object({leaseToken:z.string(),itemId:z.string(),reason:z.string()});

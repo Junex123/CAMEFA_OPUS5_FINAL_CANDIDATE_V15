@@ -1,0 +1,48 @@
+[
+  {
+    "sourceId": "src:mfr.canon",
+    "kind": "manufacturer_spec",
+    "origin": "https://global.canon",
+    "licence": "factual_only",
+    "attributionRequired": true,
+    "crawlDelayMs": 2000,
+    "maxConcurrency": 1,
+    "pathAllowlist": ["/en/c-museum/", "/en/product/"],
+    "parser": "spec-table@2",
+    "attributeScope": [
+      "sensor_format", "sensor_mp", "mount", "weight_g", "flash_sync_s",
+      "ibis_stops", "card_slots", "viewfinder_dots", "burst_fps_mech"
+    ],
+    "reliabilityPrior": 0.86,
+    "anchorEligible": false
+  },
+  {
+    "sourceId": "src:lab.dxo",
+    "kind": "lab_measurement",
+    "origin": "https://www.dxomark.com",
+    "licence": "factual_only",
+    "attributionRequired": true,
+    "crawlDelayMs": 3000,
+    "maxConcurrency": 1,
+    "pathAllowlist": ["/cameras/"],
+    "parser": "lab-measurement@1",
+    "attributeScope": ["dr_stops_base", "low_light_iso_score", "colour_depth_bits"],
+    "reliabilityPrior": 0.93,
+    "anchorEligible": true
+  },
+  {
+    "sourceId": "src:registry.mount-geometry",
+    "kind": "registry",
+    "origin": "https://raw.githubusercontent.com",
+    "licence": "permissive",
+    "attributionRequired": true,
+    "crawlDelayMs": 0,
+    "maxConcurrency": 4,
+    "pathAllowlist": ["/camefa/mount-geometry/"],
+    "parser": "mount-geometry@1",
+    "attributeScope": ["flange_distance_mm", "throat_diameter_mm", "mount_alias"],
+    "reliabilityPrior": 0.97,
+    "anchorEligible": true
+  }
+]
+Copy

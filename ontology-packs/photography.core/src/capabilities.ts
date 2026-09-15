@@ -1,0 +1,115 @@
+import {
+  capabilityKey, attributeKey, entityTypeKey, derivationId, unitKey, q, D,
+} from '@camefa/engine-kernel';
+import type { CapabilityDefinition, SemVer } from '@camefa/engine-ontology';
+
+const c = capabilityKey;
+const a = attributeKey;
+const t = entityTypeKey;
+const u = unitKey;
+const v1 = '1.0.0' as SemVer;
+
+export const CAPABILITIES: readonly CapabilityDefinition[] = [
+  {
+    key: c('lowlight.iso_headroom'),
+    label: 'Usable ISO headroom above base',
+    jnd: q(1 / 3, u('stop')), saturation: q(8, u('stop')),
+    output: { kind: 'quantity', dimension: D.dimensionless, canonicalUnit: u('stop') },
+    inputs: [
+      a('sensor.width'), a('sensor.height'), a('sensor.effective_pixels'),
+      a('sensor.read_noise_high_gain'), a('sensor.base_iso'), a('generation_year'),
+    ],
+    derivation: derivationId('lowlight.iso_headroom@1'),
+    version: v1,
+    interpretation: 'higher_is_better',
+    appliesTo: [t('gear.capture.body')],
+  },
+  {
+    key: c('tonal.dynamic_range'),
+    label: 'Dynamic range latitude',
+    jnd: q(1 / 3, u('stop')), saturation: q(15, u('stop')),
+    output: { kind: 'quantity', dimension: D.dimensionless, canonicalUnit: u('stop') },
+    inputs: [a('sensor.dr_measured'), a('sensor.width'), a('sensor.height'), a('generation_year')],
+    derivation: derivationId('tonal.dynamic_range@1'),
+    version: v1,
+    interpretation: 'higher_is_better',
+    appliesTo: [t('gear.capture.body')],
+  },
+  {
+    key: c('motion.rolling_shutter'),
+    label: 'Rolling shutter severity',
+    jnd: q(4, u('ms')), saturation: q(4, u('ms')),
+    output: { kind: 'quantity', dimension: D.time, canonicalUnit: u('ms') },
+    inputs: [a('sensor.readout_time'), a('sensor.stacked')],
+    derivation: derivationId('motion.rolling_shutter@1'),
+    version: v1,
+    interpretation: 'lower_is_better',
+    appliesTo: [t('gear.capture.body')],
+  },
+  {
+    key: c('af.lowlight_reliability'),
+    label: 'Autofocus reliability in low light',
+    jnd: q(1, u('EV')), saturation: q(-6, u('EV')),
+    output: { kind: 'quantity', dimension: D.dimensionless, canonicalUnit: u('EV') },
+    inputs: [a('af.low_light_limit'), a('af.subject_detection'), a('generation_year')],
+    derivation: derivationId('af.lowlight_reliability@1'),
+    version: v1,
+    interpretation: 'lower_is_better',
+    appliesTo: [t('gear.capture.body')],
+  },
+  {
+    key: c('handling.carry_mass'),
+    label: 'Operating carry mass',
+    jnd: q(80, u('g')),
+    output: { kind: 'quantity', dimension: D.mass, canonicalUnit: u('g') },
+    inputs: [a('mass.operating'), a('mass.body_only')],
+    derivation: derivationId('handling.carry_mass@1'),
+    version: v1,
+    interpretation: 'lower_is_better',
+    appliesTo: [t('gear')],
+  },
+  {
+    key: c('redundancy.card_slots'),
+    label: 'Recording redundancy',
+    jnd: q(1, u('count')), saturation: q(2, u('count')),
+    output: { kind: 'quantity', dimension: D.dimensionless, canonicalUnit: u('count') },
+    inputs: [a('media.slot_count')],
+    derivation: derivationId('redundancy.card_slots@1'),
+    version: v1,
+    interpretation: 'higher_is_better',
+    appliesTo: [t('gear.capture.body')],
+  },
+  {
+    key: c('endurance.frames_per_charge'),
+    label: 'Frames per charge, field conditions',
+    jnd: q(120, u('count')), saturation: q(2200, u('count')),
+    output: { kind: 'quantity', dimension: D.dimensionless, canonicalUnit: u('count') },
+    inputs: [a('power.cipa_rating'), a('power.capacity'), a('generation_year')],
+    derivation: derivationId('endurance.frames_per_charge@1'),
+    version: v1,
+    interpretation: 'higher_is_better',
+    appliesTo: [t('gear.capture.body')],
+  },
+  {
+    key: c('video.codec_load'),
+    label: 'Post-production codec load',
+    jnd: q(50, u('Mbps')),
+    output: { kind: 'quantity', dimension: D.bitrate, canonicalUnit: u('Mbps') },
+    inputs: [a('video.max_bitrate'), a('video.max_bit_depth'), a('video.chroma')],
+    derivation: derivationId('video.codec_load@1'),
+    version: v1,
+    interpretation: 'lower_is_better',
+    appliesTo: [t('gear.capture.body')],
+  },
+  {
+    key: c('resilience.weather'),
+    label: 'Weather resilience',
+    jnd: q(1, u('count')),
+    output: { kind: 'ordinal', levels: ['none', 'light', 'moderate', 'professional'] },
+    inputs: [a('weather.sealing')],
+    derivation: derivationId('resilience.weather@1'),
+    version: v1,
+    interpretation: 'higher_is_better',
+    appliesTo: [t('gear')],
+  },
+];

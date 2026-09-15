@@ -1,0 +1,32 @@
+model DecisionReceipt {
+  receiptId     String   @id
+  slug          String   @unique
+  primitive     String
+  issuedAt      DateTime
+  asOf          DateTime
+  engine        Json
+  inputDigest   String
+  outputDigest  String
+  lineageDigest String
+  cost          Json
+  determinism   String
+  warnings      String[]
+  actorKind     String
+  createdAt     DateTime @default(now())
+
+  lineage DecisionLineage?
+
+  @@index([primitive, issuedAt(sort: Desc)])
+  @@index([inputDigest])
+  @@map("decision_receipt")
+}
+
+model DecisionLineage {
+  receiptId String          @id
+  receipt   DecisionReceipt @relation(fields: [receiptId], references: [receiptId], onDelete: Cascade)
+  payload   Json
+  byteSize  Int
+
+  @@map("decision_lineage")
+}
+Copy

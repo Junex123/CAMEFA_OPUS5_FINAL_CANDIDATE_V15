@@ -1,0 +1,1 @@
+export interface Principal { subjectId:string; tier:'anonymous'|'user'|'service'; } export const principalOf=(req:any):Principal=>({subjectId:String(req?.user?.id??req?.headers?.['x-user-id']??'anonymous'),tier:'user'});
