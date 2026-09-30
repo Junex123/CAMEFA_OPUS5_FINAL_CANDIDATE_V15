@@ -11,19 +11,19 @@ export class ReceiptController {
   async bySlug(@Param('slug') slug: string, @Res({ passthrough: true }) response: FastifyReply) {
     const row = await this.prisma.decisionReceipt.findUnique({
       where: { slug },
-      include: { lineage: true },
+      include: { evaluation: true, lineage: true },
     });
-    if (!row) throw new NotFoundException({ error: { code: 'NOT_FOUND', message: 'no such decision' } });
+    if (!row?.evaluation) throw new NotFoundException({ error: { code: 'NOT_FOUND', message: 'no such decision' } });
 
-    const receipt = row.engine as unknown as DecisionReceipt;
-    if (!verifyAddress(receipt)) {
-      throw new NotFoundException({ error: { code: 'NOT_FOUND', message: 'no such decision' } });
-    }
+    const receipt = {
+      ...(row.payload as object),
+      receiptId: row.receiptId,
+      sealedAt: row.sealedAt.toISOString(),
+      cost: row.evaluation.cost,
+    } as unknown as DecisionReceipt;
+    if (!verifyAddress(receipt)) throw new NotFoundException({ error: { code: 'NOT_FOUND', message: 'no such decision' } });
 
     response.header('cache-control', 'public, max-age=31536000, immutable');
-    return {
-      data: receipt,
-      lineage: row.lineage?.payload ?? receipt.lineage,
-    };
+    return { data: receipt, lineage: row.lineage?.payload ?? receipt.lineage };
   }
 }
