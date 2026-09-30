@@ -14,6 +14,8 @@ export interface Weight {
 
 export interface NormalizedRequest {
   readonly profile: string;
+  /** Entity type used when the request does not carry an explicit catalog type. */
+  readonly entityType?: string;
   readonly candidates: readonly SlotRef[];
   readonly constraints: readonly HardConstraint[];
   readonly weights: readonly Weight[];
@@ -44,6 +46,7 @@ export const weightSchema: z.ZodType<Weight> = z.object({
 /** Canonical wire + addressed request shape (ADR-081). */
 export const normalizedRequestSchema: z.ZodType<NormalizedRequest, z.ZodTypeDef, unknown> = z.object({
   profile: z.string().min(1),
+  entityType: z.string().min(1).optional(),
   candidates: z.array(slotRefSchema).min(2),
   constraints: z.array(hardConstraintSchema).default([]),
   weights: z.array(weightSchema).min(1),

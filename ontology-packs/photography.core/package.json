@@ -12,7 +12,8 @@
   },
   "devDependencies": {
     "typescript": "5.5.4",
-    "vitest": "2.0.5"
+    "vitest": "2.0.5",
+    "@camefa/ontology-core-units": "workspace:*"
   },
   "dependencies": {
     "@camefa/engine-kernel": "workspace:*",

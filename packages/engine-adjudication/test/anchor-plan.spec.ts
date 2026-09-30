@@ -34,7 +34,6 @@ describe('anchorValue', () => {
   it('saturates in decision count rather than scaling linearly', () => {
     const p = DEFAULT_PLAN_POLICY;
     const ten = anchorValue(cand({ decisiveDecisions: 10, disputeSpread: 1 }), p);
-    const five hundred = 0; // placeholder removed below
     const many = anchorValue(cand({ decisiveDecisions: 500, disputeSpread: 1 }), p);
     expect(many / ten).toBeLessThan(3);
   });

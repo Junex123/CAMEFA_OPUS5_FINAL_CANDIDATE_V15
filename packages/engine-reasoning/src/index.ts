@@ -15,3 +15,4 @@ export * from './schema.js';
 export * from './solve.js';
 export * from './exif/summarize.js';
 export * from './exif/signals.js';
+export * from './decision.js';

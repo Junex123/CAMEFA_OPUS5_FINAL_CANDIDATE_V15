@@ -1,64 +1,43 @@
-import { Body, Controller, Post, Req, Res, UsePipes } from '@nestjs/common';
-import type { FastifyReply, FastifyRequest } from 'fastify';
-import { EngineClient } from '@camefa/engine-contracts';
-import { isErr } from '@camefa/engine-kernel';
+import { Body, Controller, Inject, Post, Res, UsePipes } from '@nestjs/common';
+import type { FastifyReply } from 'fastify';
+import {
+  normalizedRequestSchema,
+  type DecisionEngineClient,
+  type DecisionRequest,
+} from '@camefa/engine-contracts';
+import { ENGINE } from '../engine/engine.module.js';
+import { PrismaReceiptSink } from '../engine/adapters/prisma-receipt-sink.js';
 import { ZodPipe } from './zod.pipe.js';
 import { ContractException } from './contract-error.filter.js';
-import { RequestContextFactory } from './request-context.factory.js';
-import { EvaluateSchema, SolveSchema, InterpretSchema, ExplainSchema, CompareSchema } from './schemas.js';
 
 @Controller('v1')
 export class DecisionController {
   constructor(
-    private readonly engine: EngineClient,
-    private readonly ctxFactory: RequestContextFactory,
+    @Inject(ENGINE) private readonly engine: DecisionEngineClient,
+    private readonly receipts: PrismaReceiptSink,
   ) {}
 
-  @Post('interpret')
-  @UsePipes(new ZodPipe(InterpretSchema))
-  interpret(@Body() input: unknown, @Req() req: FastifyRequest, @Res({ passthrough: true }) res: FastifyReply) {
-    return this.#dispatch('interpret', input, req, res);
-  }
-
   @Post('evaluate')
-  @UsePipes(new ZodPipe(EvaluateSchema))
-  evaluate(@Body() input: unknown, @Req() req: FastifyRequest, @Res({ passthrough: true }) res: FastifyReply) {
-    return this.#dispatch('evaluate', input, req, res);
-  }
+  @UsePipes(new ZodPipe(normalizedRequestSchema))
+  async evaluate(
+    @Body() input: DecisionRequest,
+    @Res({ passthrough: true }) response: FastifyReply,
+  ) {
+    try {
+      const receipt = await this.engine.evaluate(input);
+      await this.receipts.put(receipt, receipt.lineage);
 
-  @Post('compare')
-  @UsePipes(new ZodPipe(CompareSchema))
-  compare(@Body() input: unknown, @Req() req: FastifyRequest, @Res({ passthrough: true }) res: FastifyReply) {
-    return this.#dispatch('compare', input, req, res);
-  }
+      response.header('x-camefa-receipt', receipt.receiptId);
+      response.header('x-camefa-work-units', String(receipt.cost.evidenceReads + receipt.cost.derivations + receipt.cost.scoringPasses));
+      response.header('cache-control', 'public, max-age=31536000, immutable');
 
-  @Post('solve')
-  @UsePipes(new ZodPipe(SolveSchema))
-  solve(@Body() input: unknown, @Req() req: FastifyRequest, @Res({ passthrough: true }) res: FastifyReply) {
-    return this.#dispatch('solve', input, req, res);
-  }
-
-  @Post('explain')
-  @UsePipes(new ZodPipe(ExplainSchema))
-  explain(@Body() input: unknown, @Req() req: FastifyRequest, @Res({ passthrough: true }) res: FastifyReply) {
-    return this.#dispatch('explain', input, req, res);
-  }
-
-  async #dispatch(primitive: any, input: unknown, req: FastifyRequest, res: FastifyReply) {
-    const context = this.ctxFactory.build(req);
-    const result = await (this.engine as any)[primitive]({ primitive, input, context });
-
-    if (isErr(result)) throw new ContractException(result.error);
-
-    const { output, meta } = result.value;
-    res.header('x-camefa-receipt', meta.receiptId);
-    res.header('x-camefa-work-units', String(meta.workUnits));
-    // Deterministic answers pinned to an asOf cursor can never change.
-    res.header(
-      'cache-control',
-      meta.deterministic && context.asOf ? 'public, max-age=31536000, immutable' : 'private, no-store',
-    );
-
-    return { data: output, meta };
+      return { data: receipt.decision, meta: { receiptId: receipt.receiptId, versions: receipt.versions } };
+    } catch (error) {
+      throw new ContractException({
+        code: 'INTERNAL',
+        message: error instanceof Error ? error.message : 'engine evaluation failed',
+        retryable: error instanceof Error && error.name === 'BudgetExhaustedError',
+      });
+    }
   }
 }

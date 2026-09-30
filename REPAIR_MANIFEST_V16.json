@@ -1,0 +1,19 @@
+{
+  "name": "CAMEFA_OPUS5_STRUCTURAL_REPAIR_V16",
+  "base": "CAMEFA_OPUS5_FINAL_CANDIDATE_V15",
+  "purpose": "Reconcile the repository around the createEngine / DecisionEngineClient architecture without fabricating production claim data.",
+  "validation": {
+    "changed_typescript_transpile_checked": 24,
+    "workspace_typescript_transpile_checked": 270,
+    "workspace_parser_diagnostics": 0,
+    "full_pnpm_typecheck_test_build": false,
+    "reason": "Dependencies are not installed and the repair workspace could not retrieve them from the network."
+  },
+  "known_unresolved": [
+    "legacy test surfaces and fixture migration remain",
+    "S046 fixture migration kit absent",
+    "ADR-079 through ADR-085 absent",
+    "current Prisma schema has no authoritative claim ledger",
+    "verify-graph still reports mixed-generation dependency/import issues outside the repaired runtime path"
+  ]
+}
