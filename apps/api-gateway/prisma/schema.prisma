@@ -1,24 +1,50 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
 model DecisionReceipt {
   receiptId     String   @id
   slug          String   @unique
-  primitive     String
-  issuedAt      DateTime
-  asOf          DateTime
-  engine        Json
+  schema        String
+  sealedAt      DateTime
+  epoch         Json
+  versions      Json
+  request       Json
+  decision      Json
+  coverage      Json
+  fragility     Json?
   inputDigest   String
   outputDigest  String
   lineageDigest String
-  cost          Json
-  determinism   String
-  warnings      String[]
-  actorKind     String
   createdAt     DateTime @default(now())
 
-  lineage DecisionLineage?
+  evaluation Evaluation?
+  lineage    DecisionLineage?
 
-  @@index([primitive, issuedAt(sort: Desc)])
+  @@index([sealedAt(sort: Desc)])
   @@index([inputDigest])
   @@map("decision_receipt")
+}
+
+model Evaluation {
+  receiptId   String          @id
+  receipt     DecisionReceipt @relation(fields: [receiptId], references: [receiptId], onDelete: Cascade)
+  primitive   String
+  asOf        DateTime
+  cost        Json
+  determinism String
+  warnings    String[]
+  actorKind   String
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  @@index([primitive, updatedAt(sort: Desc)])
+  @@map("evaluation")
 }
 
 model DecisionLineage {
@@ -29,4 +55,3 @@ model DecisionLineage {
 
   @@map("decision_lineage")
 }
-Copy

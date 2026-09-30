@@ -2,15 +2,14 @@
   "name": "camefa-engine",
   "private": true,
   "packageManager": "pnpm@9.7.0",
-  "engines": {
-    "node": ">=20.11"
-  },
+  "engines": { "node": ">=20.11" },
   "scripts": {
     "build": "turbo run build",
     "typecheck": "turbo run typecheck",
     "test": "turbo run test",
     "lint": "turbo run lint",
-    "verify": "pnpm typecheck && pnpm test && pnpm build",
+    "verify-graph": "node tools/verify-graph.mjs",
+    "verify": "pnpm verify-graph && pnpm typecheck && pnpm test && pnpm build",
     "pack": "bash tools/pack.sh",
     "dev": "pnpm --filter @camefa/web dev"
   },

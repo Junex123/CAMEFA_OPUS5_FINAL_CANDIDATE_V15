@@ -21,16 +21,15 @@ jobs:
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with: { node-version: 20, cache: pnpm }
-
+      - name: Verify workspace graph
+        run: pnpm verify-graph
       - run: pnpm install --frozen-lockfile
       - run: pnpm turbo run build --filter=@camefa/engine-eval...
-
       - name: Replay golden set
-        id: replay
         env:
           BASELINE_URL: ${{ secrets.RECEIPT_BASELINE_URL }}
         run: |
-          pnpm camefa-eval \
+          pnpm --filter @camefa/engine-eval exec camefa-eval \
             --set-id=core \
             --golden=eval/golden/core.json \
             --waivers=eval/waivers.json \
@@ -40,7 +39,6 @@ jobs:
             --web-base-url=https://camefa.app \
             --out-json=eval-run.json \
             --out-md=eval-report.md
-
       - if: always()
         uses: actions/upload-artifact@v4
         with:
@@ -48,10 +46,8 @@ jobs:
           path: |
             eval-run.json
             eval-report.md
-
       - if: always()
         uses: marocchino/sticky-pull-request-comment@v2
         with:
           header: decision-regression
           path: eval-report.md
-Copy
