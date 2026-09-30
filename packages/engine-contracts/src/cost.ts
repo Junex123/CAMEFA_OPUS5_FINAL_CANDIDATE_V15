@@ -1,10 +1,9 @@
-import { ok, err, type Result } from './diagnostics.js';
-export type CostDimension='evidenceReads'|'derivations'|'scoringPasses'|'wallClockMs';
-export type CostAllowance=Readonly<Record<CostDimension,number>>;
-export interface CostBudget extends CostAllowance { readonly fragility:CostAllowance; }
-export interface CostReport extends CostAllowance { readonly fragility:CostAllowance & {readonly exhausted:boolean}; }
-export const COST_DIMENSIONS:readonly CostDimension[]=Object.freeze(['evidenceReads','derivations','scoringPasses','wallClockMs']);
-
+export type CostDimension = 'evidenceReads' | 'derivations' | 'scoringPasses' | 'wallClockMs';
+export type CostAllowance = Readonly<Record<CostDimension, number>>;
+export interface CostBudget extends CostAllowance { readonly fragility: CostAllowance; }
+export interface CostReport extends CostAllowance {
+  readonly fragility: CostAllowance & { readonly exhausted: boolean };
+}
 export type CostVector = Partial<Record<CostDimension, number>>;
 export const ZERO_COST: Readonly<CostVector> = Object.freeze({});
 export const COST_WEIGHTS: Readonly<Required<Record<CostDimension, number>>> = Object.freeze({

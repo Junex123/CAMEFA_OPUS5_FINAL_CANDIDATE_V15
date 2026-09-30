@@ -4,21 +4,24 @@ import {
 } from '@camefa/engine-contracts';
 import { CostMeter, type CostBudget } from '@camefa/engine-kernel';
 import { compileOntology, type CompiledOntology, type OntologyPack } from '@camefa/engine-ontology';
-import { buildCapabilityGraph, type CapabilityGraph, type DerivationRegistry, type AnyDerivation } from '@camefa/engine-capability';
-import { evaluateDecision, evaluateDecisionStream, type ImputationPolicy, type ReasoningConfig } from '@camefa/engine-reasoning';
-import type { ClaimReader } from '@camefa/engine-ingest';
+import { buildCapabilityGraph, type CapabilityGraph, type DerivationRegistry, type AnyDerivation, type ClaimResolverPort } from '@camefa/engine-capability';
+import { evaluateDecision, evaluateDecisionStream, DEFAULT_IMPUTATION, DEFAULT_REASONING, type ImputationPolicy, type ReasoningConfig } from '@camefa/engine-reasoning';
 
 export interface EngineDeps {
   readonly ontologySource: readonly OntologyPack[];
   readonly derivations: DerivationRegistry | readonly AnyDerivation[];
-  readonly claims: ClaimReader;
+  readonly claims: ClaimResolverPort;
   readonly reasoning: ReasoningConfig;
   readonly imputation: ImputationPolicy;
   readonly budget: CostBudget;
   readonly now: () => string;
   readonly buildFingerprint: string;
 }
-export interface Engine extends DecisionEngineClient { readonly versions: EngineVersions; readonly ontology: CompiledOntology; readonly capabilities: CapabilityGraph; }
+export interface Engine extends DecisionEngineClient {
+  readonly versions: EngineVersions;
+  readonly ontology: CompiledOntology;
+  readonly capabilities: CapabilityGraph;
+}
 
 export function createEngine(deps: EngineDeps): Engine {
   const compiled = compileOntology(deps.ontologySource);
@@ -33,13 +36,29 @@ export function createEngine(deps: EngineDeps): Engine {
     capability: graph.fingerprint,
     reasoning: canonicalHash({ reasoning: deps.reasoning, imputation: deps.imputation }),
   };
-  const context = () => ({ ontology, capabilities: graph, claims: deps.claims, reasoning: deps.reasoning, imputation: deps.imputation, versions, meter: new CostMeter(deps.budget), now: deps.now });
+  const context = () => ({
+    ontology,
+    capabilities: graph,
+    claims: deps.claims,
+    reasoning: deps.reasoning,
+    imputation: deps.imputation,
+    versions,
+    meter: new CostMeter(deps.budget),
+    now: deps.now,
+    defaultEntityType: deps.reasoning.defaultEntityType,
+  });
   return {
-    versions, ontology, capabilities: graph,
+    versions,
+    ontology,
+    capabilities: graph,
     evaluate: (request: DecisionRequest): Promise<DecisionReceipt> => evaluateDecision({ request, ...context() }),
     evaluateStream: (request: DecisionRequest): AsyncGenerator<StreamEvent> => evaluateDecisionStream({ request, ...context() }),
   };
 }
+
+export { DEFAULT_REASONING, DEFAULT_IMPUTATION };
+export type { ReasoningConfig, ImputationPolicy };
+
 export class EngineAssemblyError extends Error {
   constructor(message: string, readonly diagnostics: readonly Diagnostic[] | unknown) {
     const list = Array.isArray(diagnostics) ? diagnostics : [];

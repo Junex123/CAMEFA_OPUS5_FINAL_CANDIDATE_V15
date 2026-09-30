@@ -13,6 +13,7 @@ export * from './merge.js';
 export * from './signal.js';
 export * from './schema.js';
 export * from './solve.js';
+export * from './config.js';
 export * from './exif/summarize.js';
 export * from './exif/signals.js';
 export * from './decision.js';
