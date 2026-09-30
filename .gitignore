@@ -1,0 +1,44 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build output
+**/dist/
+**/build/
+**/.next/
+**/coverage/
+.turbo/
+
+# Caches / tooling
+.cache/
+.tmp/
+*.tsbuildinfo
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Local databases / generated runtime data
+*.db
+*.sqlite
+*.sqlite3
+
+# Test artifacts
+playwright-report/
+test-results/
+
+# Temporary audit files
+.audit/

@@ -31,7 +31,7 @@ const emit = (e: Emit): ObservedSignal => ({
  * has never shot at ISO 12800 has not shown they don't need to — absence of
  * evidence produces no signal at all (ADR-023 applied to the signal layer).
  */
-export const exifSignals = (s: ExifSummary, ont: CompiledOntology): ObservedSignal[] => {
+export const exifSignals = (s: ExifSummary, _ont: CompiledOntology): ObservedSignal[] => {
   const out: ObservedSignal[] = [];
 
   if (s.isoStopsP90) {

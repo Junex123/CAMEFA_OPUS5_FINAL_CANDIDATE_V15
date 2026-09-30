@@ -22,13 +22,14 @@
   "dependencies": {
     "@camefa/engine-capability": "workspace:*",
     "@camefa/engine-contracts": "workspace:*",
-    "@camefa/engine-ingest": "workspace:*",
     "@camefa/engine-kernel": "workspace:*",
     "@camefa/engine-ontology": "workspace:*",
     "@camefa/engine-reasoning": "workspace:*"
   },
   "devDependencies": {
     "typescript": "5.5.4",
-    "vitest": "2.0.5"
+    "vitest": "2.0.5",
+    "@camefa/ontology-core-units": "workspace:*",
+    "@camefa/ontology-photography-core": "workspace:*"
   }
 }

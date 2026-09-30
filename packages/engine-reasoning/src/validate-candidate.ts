@@ -1,6 +1,4 @@
-import {
-  unitKey, capabilityKey, type UnitRegistry, type CapabilityKey,
-} from '@camefa/engine-kernel';
+import { unitKey, capabilityKey, type CapabilityKey, dimEquals } from '@camefa/engine-kernel';
 import type { CompiledOntology, RequirementTarget, Emphasis } from '@camefa/engine-ontology';
 import type { CandidateRequirement } from './schema.js';
 
@@ -23,52 +21,23 @@ export interface ValidatedCandidate {
 const OPS = ['gte', 'lte', 'within', 'maximize', 'minimize'] as const;
 const EMPHASES = ['must', 'strongly_prefer', 'prefer', 'nice_to_have', 'indifferent'] as const;
 
-/** Invalid candidates are discarded, never coerced to the nearest match. */
-export const validateCandidate = (
-  raw: CandidateRequirement,
-  ont: CompiledOntology,
-): { ok: true; value: ValidatedCandidate } | { ok: false; error: Rejection } => {
+export const validateCandidate = (raw: CandidateRequirement, ont: CompiledOntology): { ok: true; value: ValidatedCandidate } | { ok: false; error: Rejection } => {
   const def = ont.capabilities.get(capabilityKey(raw.capability));
   if (!def) return { ok: false, error: { reason: 'UNKNOWN_CAPABILITY', raw } };
-
-  if (!(OPS as readonly string[]).includes(raw.op)) {
-    return { ok: false, error: { reason: 'INVALID_OP', raw } };
-  }
-  if (!(EMPHASES as readonly string[]).includes(raw.emphasis)) {
-    return { ok: false, error: { reason: 'INVALID_EMPHASIS', raw } };
-  }
+  if (!(OPS as readonly string[]).includes(raw.op)) return { ok: false, error: { reason: 'INVALID_OP', raw } };
+  if (!(EMPHASES as readonly string[]).includes(raw.emphasis)) return { ok: false, error: { reason: 'INVALID_EMPHASIS', raw } };
   const op = raw.op as ValidatedCandidate['op'];
   const emphasis = raw.emphasis as Emphasis;
-
-  if (op === 'maximize' || op === 'minimize') {
-    return { ok: true, value: { capability: def.key, op, emphasis } };
-  }
-
+  if (op === 'maximize' || op === 'minimize') return { ok: true, value: { capability: def.key, op, emphasis } };
   if (def.output.kind === 'ordinal') {
     if (raw.level === undefined) return { ok: false, error: { reason: 'MISSING_TARGET', raw } };
-    if (!def.output.levels.includes(raw.level)) {
-      return { ok: false, error: { reason: 'INVALID_LEVEL', raw } };
-    }
-    return {
-      ok: true,
-      value: { capability: def.key, op, emphasis, target: { kind: 'ordinal', level: raw.level } },
-    };
+    if (!def.output.levels.includes(raw.level)) return { ok: false, error: { reason: 'INVALID_LEVEL', raw } };
+    return { ok: true, value: { capability: def.key, op, emphasis, target: { kind: 'ordinal', level: raw.level } } };
   }
-
-  if (raw.value === undefined || raw.unit === undefined) {
-    return { ok: false, error: { reason: 'MISSING_TARGET', raw } };
-  }
+  if (raw.value === undefined || raw.unit === undefined) return { ok: false, error: { reason: 'MISSING_TARGET', raw } };
   const unit = unitKey(raw.unit);
-  const kind = ont.units.kindOf(unit);
-  if (!kind.ok) return { ok: false, error: { reason: 'UNKNOWN_UNIT', raw } };
-  if (kind.value !== def.output.quantityKind) {
-    return { ok: false, error: { reason: 'KIND_MISMATCH', raw } };
-  }
-  return {
-    ok: true,
-    value: {
-      capability: def.key, op, emphasis,
-      target: { kind: 'quantity', value: { value: raw.value, unit } },
-    },
-  };
+  const dimension = ont.units.dimensionOf(unit);
+  if (!dimension.ok) return { ok: false, error: { reason: 'UNKNOWN_UNIT', raw } };
+  if (def.output.kind !== 'quantity' || !dimEquals(dimension.value, def.output.dimension)) return { ok: false, error: { reason: 'KIND_MISMATCH', raw } };
+  return { ok: true, value: { capability: def.key, op, emphasis, target: { kind: 'quantity', value: { value: raw.value, unit } } } };
 };

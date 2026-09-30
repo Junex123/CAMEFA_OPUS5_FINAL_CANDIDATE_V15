@@ -21,11 +21,11 @@ export const DEFAULT_THRESHOLDS: GateThresholds = {
   minComparedFraction: 0.9,
 };
 
-export type Severity = 'blocking' | 'advisory';
+export type FindingSeverity = 'blocking' | 'advisory';
 
 export interface Finding {
   code: string;
-  severity: Severity;
+  severity: FindingSeverity;
   message: string;
   questionKeys: string[];
 }
@@ -123,7 +123,7 @@ export function evaluateGate(
   const findings: Finding[] = [];
   const add = (
     code: string,
-    severity: Severity,
+    severity: FindingSeverity,
     message: string,
     rows: QuestionResult[],
   ) => {

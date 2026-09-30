@@ -1,4 +1,4 @@
-import { allK, type CapabilityKey, type EntityId } from '@camefa/engine-kernel';
+import { allK, NULL_SINK, type CapabilityKey, type EntityId, type CostSink } from '@camefa/engine-kernel';
 import type { CompiledOntology } from '@camefa/engine-ontology';
 import type { CapabilityRunner, CapabilityValue } from '@camefa/engine-capability';
 import type { LineageNode } from '@camefa/engine-capability';
@@ -47,6 +47,7 @@ export class Evaluator {
   constructor(
     private readonly ontology: CompiledOntology,
     private readonly runner: CapabilityRunner,
+    private readonly sink: CostSink = NULL_SINK,
   ) {}
 
   async evaluateMany(
@@ -69,9 +70,10 @@ export class Evaluator {
     const keys = [...new Set(reqs.requirements.map((r) => r.capability))].sort();
     const derived = await this.runner.derive(target, entityType, keys);
 
-    const rows = reqs.requirements.map((req) =>
-      this.#score(req, derived.get(req.capability), field?.get(req.capability)),
-    );
+    const rows = reqs.requirements.map((req) => {
+      this.sink.charge('scoringPasses', 1);
+      return this.#score(req, derived.get(req.capability), field?.get(req.capability));
+    });
 
     const gates = rows.filter((r) => r.req.hardness === 'blocking');
     const gateVerdict = allK(gates.map((r) => r.outcome.verdict));

@@ -1,33 +1,55 @@
-export type LineageKind =
-  | 'input'
-  | 'claim'
-  | 'derivation'
-  | 'constraint'
-  | 'aggregation';
+import type { AttributeKey, CapabilityKey, DerivationId } from '@camefa/engine-kernel';
 
-export interface LineageNode {
-  nodeId: string;
-  kind: LineageKind;
-  label: string;
-  contribution?: number;
-  confidence?: number;
-  sourceRef?: { sourceId: string; reliability: number; observedAt: string };
-  conflictId?: string;
-  children: LineageNode[];
-}
+export type EvidenceClass = 'measured' | 'manufacturer' | 'community' | 'stated' | 'inferred';
+
+export type LineageNode =
+  | {
+      readonly kind: 'claim';
+      readonly attribute: AttributeKey;
+      readonly evidenceClass: EvidenceClass;
+      readonly confidence: number;
+      readonly contributing: readonly string[];
+      readonly dissenting: readonly string[];
+    }
+  | {
+      readonly kind: 'derivation';
+      readonly capability: CapabilityKey;
+      readonly derivation: DerivationId;
+      readonly version: string;
+      readonly strategy: 'primary' | 'fallback';
+      readonly confidence: number;
+      readonly inputs: readonly LineageNode[];
+    }
+  | {
+      readonly kind: 'aggregation' | 'constraint';
+      readonly nodeId: string;
+      readonly label: string;
+      readonly contribution?: number;
+      readonly confidence?: number;
+      readonly children: readonly LineageNode[];
+    };
 
 export function countLineage(node: LineageNode): number {
-  return 1 + node.children.reduce((s, c) => s + countLineage(c), 0);
+  if (node.kind === 'claim') return 1;
+  if (node.kind === 'derivation') return 1 + node.inputs.reduce((n, child) => n + countLineage(child), 0);
+  return 1 + node.children.reduce((n, child) => n + countLineage(child), 0);
 }
 
-/** Depth-first, pre-order — the order the surface renders in. */
 export function* walkLineage(node: LineageNode): Generator<LineageNode> {
   yield node;
-  for (const child of node.children) yield* walkLineage(child);
+  if (node.kind === 'derivation') {
+    for (const child of node.inputs) yield* walkLineage(child);
+  } else if (node.kind === 'aggregation' || node.kind === 'constraint') {
+    for (const child of node.children) yield* walkLineage(child);
+  }
 }
 
-export function contestedConflictIds(node: LineageNode): string[] {
-  const out = new Set<string>();
-  for (const n of walkLineage(node)) if (n.conflictId) out.add(n.conflictId);
-  return [...out].sort();
+export function claimIdsOf(node: LineageNode): readonly string[] {
+  if (node.kind === 'claim') return node.contributing;
+  if (node.kind === 'derivation') return node.inputs.flatMap(claimIdsOf);
+  return node.children.flatMap(claimIdsOf);
+}
+
+export function contestedConflictIds(_node: LineageNode): readonly string[] {
+  return [];
 }

@@ -4,26 +4,23 @@ import type { ScoredCandidate, ScoredTerm } from './score.js';
 
 function claimNodes(value: AttributeValue): LineageNode[] {
   return value.evidence.map((e) => ({
-    nodeId: `claim:${e.claimId}`,
     kind: 'claim' as const,
-    label: `${e.attribute} from ${e.sourceId}`,
+    attribute: e.attribute as never,
+    evidenceClass: 'manufacturer' as const,
     confidence: e.reliability,
-    sourceRef: { sourceId: e.sourceId, reliability: e.reliability, observedAt: '' },
-    children: [],
+    contributing: [e.claimId],
+    dissenting: [],
   }));
 }
 
-function termNode(
-  term: ScoredTerm,
-  value: AttributeValue | undefined,
-): LineageNode {
+function termNode(term: ScoredTerm, value: AttributeValue | undefined): LineageNode {
   const children: LineageNode[] = [];
 
   if (value?.imputed) {
     children.push({
       nodeId: `imputed:${term.attributeId}`,
-      kind: 'input',
-      label: `no evidence — imputed at worst observed value (${term.rawValue} ${term.unit})`,
+      kind: 'constraint',
+      label: `no evidence — pessimistically imputed at ${term.rawValue} ${term.unit}`,
       confidence: 0,
       children: [],
     });
@@ -33,9 +30,12 @@ function termNode(
       children.push({
         nodeId: `derivation:${term.attributeId}`,
         kind: 'derivation',
-        label: value.derivationId,
+        capability: term.attributeId as never,
+        derivation: value.derivationId as never,
+        version: 'unknown',
+        strategy: 'primary',
         confidence: value.confidence,
-        children: inner,
+        inputs: inner,
       });
     } else {
       children.push(...inner);
@@ -48,7 +48,6 @@ function termNode(
     label: `${term.requirementId} — ${term.satisfaction.toFixed(3)} satisfied at weight ${term.weight}`,
     contribution: term.contribution,
     confidence: term.confidence,
-    ...(term.conflictId ? { conflictId: term.conflictId } : {}),
     children,
   };
 }
@@ -66,15 +65,13 @@ export function buildLineage(
     label: `${questionLabel} — non-compensatory power mean (p = ${aggregationP})`,
     children: [
       ...(winner
-        ? [
-            {
-              nodeId: `candidate:${winner.entityId}`,
-              kind: 'aggregation' as const,
-              label: `${winner.entityId} scored ${winner.score.toFixed(3)}`,
-              confidence: winner.confidence,
-              children: winner.terms.map((t) => termNode(t, values.get(t.attributeId))),
-            },
-          ]
+        ? [{
+            nodeId: `candidate:${winner.entityId}`,
+            kind: 'aggregation' as const,
+            label: `${winner.entityId} scored ${winner.score.toFixed(3)}`,
+            confidence: winner.confidence,
+            children: winner.terms.map((t) => termNode(t, values.get(t.attributeId))),
+          }]
         : []),
       ...eliminatedNodes,
     ],
