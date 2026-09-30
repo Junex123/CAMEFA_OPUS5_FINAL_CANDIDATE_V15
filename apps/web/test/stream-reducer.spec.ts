@@ -3,7 +3,7 @@ import {
   initialStreamState,
   reduceStream,
   type Frame,
-} from '../src/lib/stream-reducer.js';
+} from '../src/lib/stream-reduce.js';
 
 const run = (frames: Frame[]) => frames.reduce(reduceStream, initialStreamState);
 
