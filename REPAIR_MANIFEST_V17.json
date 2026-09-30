@@ -1,0 +1,16 @@
+{
+  "name": "CAMEFA_OPUS5_TYPE_FIX_V17",
+  "base": "CAMEFA_OPUS5_STRUCTURAL_REPAIR_V16",
+  "purpose": "Resolve the confirmed V16 runtime/gateway type mismatches without casting across incompatible package interfaces.",
+  "changes": [
+    "EngineDeps.claims now uses the existing ClaimResolverPort consumed by CapabilityRunner.",
+    "Added canonical ReasoningConfig/ImputationPolicy defaults and included them in reasoning fingerprinting.",
+    "Moved defaultEntityType into ReasoningConfig.",
+    "Removed requiredEnv fallback escape hatch.",
+    "Normalized Result diagnostics to readonly Diagnostic arrays."
+  ],
+  "validation": {
+    "full_pnpm_typecheck_test_build": false,
+    "reason": "Dependencies are not installed in the repair environment."
+  }
+}
