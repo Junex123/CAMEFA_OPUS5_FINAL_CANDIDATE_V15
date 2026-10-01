@@ -1,8 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import { unitKey, q, isOk } from '@camefa/engine-kernel';
 import { compileOntology } from '../src/compile.js';
-import { coreUnitsPack } from '@camefa/ontology-core-units';
-import { photographyCorePack } from '@camefa/ontology-photography-core';
+import { coreUnitsPack } from '../../../ontology-packs/core.units/src/index.js';
+import { photographyCorePack } from '../../../ontology-packs/photography.core/src/index.js';
 
 const compiled = () => compileOntology([coreUnitsPack, photographyCorePack]);
 
