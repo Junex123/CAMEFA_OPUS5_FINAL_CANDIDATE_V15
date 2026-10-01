@@ -15,7 +15,7 @@ export interface Weight {
 export interface NormalizedRequest {
   readonly profile: string;
   /** Entity type used when the request does not carry an explicit catalog type. */
-  readonly entityType?: string;
+  readonly entityType: string | undefined;
   readonly candidates: readonly SlotRef[];
   readonly constraints: readonly HardConstraint[];
   readonly weights: readonly Weight[];
@@ -51,7 +51,7 @@ export const normalizedRequestSchema: z.ZodType<NormalizedRequest, z.ZodTypeDef,
   constraints: z.array(hardConstraintSchema).default([]),
   weights: z.array(weightSchema).min(1),
   locale: z.string().default('en'),
-}).strict();
+}).strict().transform((value) => ({ ...value, entityType: value.entityType }));
 
 export type CurrencyCode = string;
 export type EntityId = string;
