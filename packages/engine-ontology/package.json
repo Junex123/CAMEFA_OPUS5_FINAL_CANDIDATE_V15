@@ -25,8 +25,6 @@
   },
   "devDependencies": {
     "typescript": "5.5.4",
-    "vitest": "2.0.5",
-    "@camefa/ontology-core-units": "workspace:*",
-    "@camefa/ontology-photography-core": "workspace:*"
+    "vitest": "2.0.5"
   }
 }
