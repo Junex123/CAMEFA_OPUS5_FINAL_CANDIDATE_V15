@@ -1,42 +1,65 @@
-export type ConsoleState =
-  | { phase: 'streaming'; progress: ProgressState }
-  | { phase: 'settled'; verified: VerificationResult; telemetry: Telemetry }
-  | { phase: 'failed'; reason: string; telemetry: Telemetry };
+import type { StreamEvent } from '@camefa/engine-contracts';
+import { verifyReceipt, type Verification } from './verify.js';
 
-/** Advisory only. Never rendered as part of the answer (ADR-067). */
-interface ProgressState {
-  readonly partialRanking: readonly RankedEntry[];
-  readonly partialEliminations: readonly EliminatedCandidate[];
-  readonly coverage?: CoverageReport;
-  readonly fragilityProgress?: { completed: number; total: number };
-  readonly telemetry: Telemetry;
-}
+export type Frame = StreamEvent;
 
-export function reduce(state: ConsoleState, event: StreamEvent): ConsoleState {
-  if (state.phase !== 'streaming') return state;
-
-  switch (event.type) {
-    case 'sealed': {
-      // Hard discontinuity: accumulated decision state is discarded entirely.
-      // Only timing/cost telemetry survives, and it is labelled unverified.
-      const verified = verifyReceipt(event.receipt);
-      return { phase: 'settled', verified, telemetry: state.progress.telemetry };
+export type StreamState =
+  | {
+      status: 'open';
+      events: readonly StreamEvent[];
+      error: null;
+      receiptId: null;
+      verification: null;
     }
-    case 'ranked':
-      return streaming(state, { partialRanking: [...state.progress.partialRanking, event.entry] });
-    case 'eliminated':
-      return streaming(state, {
-        partialEliminations: [...state.progress.partialEliminations, event.candidate],
-      });
-    case 'coverage':
-      return streaming(state, { coverage: event.coverage });
-    case 'fragility_progress':
-      return streaming(state, {
-        fragilityProgress: { completed: event.completed, total: event.total },
-      });
-    case 'heartbeat':
-      return streaming(state, { telemetry: tick(state.progress.telemetry, event) });
-    case 'error':
-      return { phase: 'failed', reason: event.message, telemetry: state.progress.telemetry };
+  | {
+      status: 'settled';
+      events: readonly StreamEvent[];
+      error: null;
+      receiptId: string;
+      verification: Verification;
+    }
+  | {
+      status: 'failed';
+      events: readonly StreamEvent[];
+      error: { code: string; message: string };
+      receiptId: null;
+      verification: null;
+    };
+
+export const initialStreamState: StreamState = {
+  status: 'open',
+  events: [],
+  error: null,
+  receiptId: null,
+  verification: null,
+};
+
+export function reduceStream(state: StreamState, event: StreamEvent): StreamState {
+  if (event.type === 'error') {
+    return {
+      status: 'failed',
+      events: [...state.events, event],
+      error: { code: 'stream', message: event.message },
+      receiptId: null,
+      verification: null,
+    };
   }
+
+  if (event.type === 'sealed') {
+    return {
+      status: 'settled',
+      events: [...state.events, event],
+      error: null,
+      receiptId: event.receipt.receiptId,
+      verification: verifyReceipt(event.receipt),
+    };
+  }
+
+  return {
+    status: 'open',
+    events: [...state.events, event],
+    error: null,
+    receiptId: null,
+    verification: null,
+  };
 }
