@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { analyseLeverage, type ContestedSlot } from '../src/leverage.js';
-import type { Candidate } from '../src/sensitivity';
+import type { Candidate } from '../src/sensitivity.js';
 
 const candidates: Candidate[] = [
   {
