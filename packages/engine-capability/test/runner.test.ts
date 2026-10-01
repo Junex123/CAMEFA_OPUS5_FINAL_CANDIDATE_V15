@@ -1,8 +1,8 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { capabilityKey, unitKey, isOk } from '@camefa/engine-kernel';
 import { compileOntology, type CompiledOntology } from '@camefa/engine-ontology';
-import { coreUnitsPack } from '@camefa/ontology-core-units';
-import { photographyCorePack, photographyDerivationRegistry } from '@camefa/ontology-photography-core';
+import { coreUnitsPack } from '../../../ontology-packs/core.units/src/index.js';
+import { photographyCorePack, photographyDerivationRegistry } from '../../../ontology-packs/photography.core/src/index.js';
 import { FixtureClaimResolver, ALL_FIXTURES, FLAGSHIP_FF, SPARSE_APSC, CFEXPRESS_CARD } from '@camefa/engine-testkit';
 import { CapabilityRunner, MemoryCapabilityCache } from '../src/index.js';
 
