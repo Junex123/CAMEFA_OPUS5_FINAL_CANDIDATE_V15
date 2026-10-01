@@ -1,5 +1,6 @@
 import { ok, type Result } from '@camefa/engine-kernel';
 import { claimId } from '@camefa/engine-kernel';
+import { canonicalHash } from '@camefa/engine-contracts';
 import type { Claim } from '@camefa/engine-contracts';
 import type { CompiledOntology } from '@camefa/engine-ontology';
 import type { ParseOutput, ClaimDraft } from './parse/contract.js';
@@ -135,7 +136,16 @@ export const promoteDrafts = async (args: {
       },
     };
 
-    promoted.push({ ...body, id: claimId(body) });
+    const id = claimId(
+      canonicalHash({
+        entityId: body.entityId,
+        attributeKey: body.attributeKey,
+        value: body.value,
+        sourceId: body.sourceId,
+        rawId: args.parsed.rawId,
+      }),
+    );
+    promoted.push({ ...body, id });
   }
 
   return ok({
