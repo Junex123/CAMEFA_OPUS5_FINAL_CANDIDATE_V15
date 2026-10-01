@@ -11,7 +11,9 @@
       "default": "./dist/index.js"
     }
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "typecheck": "tsc --noEmit",
@@ -25,6 +27,7 @@
   "devDependencies": {
     "typescript": "5.5.4",
     "vitest": "2.0.5",
-    "@camefa/engine-testkit": "workspace:*"
+    "@camefa/engine-testkit": "workspace:*",
+    "@camefa/ontology-core-units": "workspace:*"
   }
 }
