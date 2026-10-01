@@ -10,6 +10,7 @@ export const attributeKey = (s: string): AttributeKey => s as AttributeKey;
 export const capabilityKey = (s: string): CapabilityKey => s as CapabilityKey;
 export const derivationId = (s: string): DerivationId => s as DerivationId;
 export type UnitKey = Brand<string, 'UnitKey'>;
+export const unitKey = (s: string): UnitKey => s as UnitKey;
 export type EntityTypeKey = Brand<string, 'EntityTypeKey'>;
 export type PackId = Brand<string, 'PackId'>;
 export type Fingerprint = Brand<string, 'Fingerprint'>;
