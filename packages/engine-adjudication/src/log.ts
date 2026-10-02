@@ -82,7 +82,7 @@ export function verifyChain(events: readonly AdjudicationEvent[]): {
 export function currentResolution(
   events: readonly AdjudicationEvent[],
 ): AdjudicationEvent | null {
-  return events.length === 0 ? null : events[events.length - 1];
+  return events.length === 0 ? null : events[events.length - 1] ?? null;
 }
 
 export function assertDisjoint(accepted: readonly string[], rejected: readonly string[]): void {
