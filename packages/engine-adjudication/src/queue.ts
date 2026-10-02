@@ -56,7 +56,11 @@ export const prioritize = (args: {
     entityId === null ? 0.1 : args.entitySalience.get(entityId) ?? 0.05;
 
   for (const c of args.conflicts) {
-    const isQuantity = c.claims.every((x) => x.value.kind === 'quantity');
+    const isQuantity = c.claims.every(
+      (x) =>
+        typeof x.value === 'object' && x.value !== null &&
+        'kind' in x.value && x.value.kind === 'quantity',
+    );
     const distortion = SEVERITY_DISTORTION[c.severity];
     const affected = demandFor(c.attributeKey) * salienceFor(c.entityId) * distortion;
 
