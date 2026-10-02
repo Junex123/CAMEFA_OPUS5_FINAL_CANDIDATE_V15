@@ -1,4 +1,4 @@
-import { attributeKey, isQuantity, type Quantity } from '@camefa/engine-kernel';
+import { attributeKey, type Quantity } from '@camefa/engine-kernel';
 import { contentHash } from '@camefa/engine-kernel';
 import type { Claim } from '@camefa/engine-contracts';
 import type { CompiledOntology } from '@camefa/engine-ontology';
