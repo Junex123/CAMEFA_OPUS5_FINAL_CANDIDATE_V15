@@ -1,6 +1,5 @@
 export * from './conflict.js';
 export * from './anchor.js';
-export * from './presentation.js';
 export * from './log.js';
 export * from './calibration.js';
 export * from './queue.js';
