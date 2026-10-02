@@ -183,7 +183,10 @@ export function planAnchorBatch(
     list.sort((a, b) => a.slotKey.localeCompare(b.slotKey));
     for (let i = list.length - 1; i > 0; i -= 1) {
       const j = Math.floor(rand() * (i + 1));
-      [list[i], list[j]] = [list[j], list[i]];
+      const left = list[i]!;
+      const right = list[j]!;
+      list[i] = right;
+      list[j] = left;
     }
   }
 
