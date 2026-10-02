@@ -1,4 +1,6 @@
 export * from './conflict.js';
+export { presentBlind, optionTokenMap } from './blind.js';
+export type { BlindPresentation, BlindOption } from './blind.js';
 export * from './anchor.js';
 export * from './log.js';
 export * from './calibration.js';
