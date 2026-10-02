@@ -60,7 +60,12 @@ export const presentBlind = (args: {
     const entry = byValue.get(k) ?? { value: c.value, sources: new Set<string>(), excerpt: null };
     entry.sources.add(c.sourceId);
     // Prefer the longest excerpt: more surrounding text, more judgeable.
-    const ex = c.provenance?.excerpt ?? null;
+    const provenance = c.provenance;
+    const ex =
+      typeof provenance === 'object' && provenance !== null &&
+      'excerpt' in provenance && typeof provenance.excerpt === 'string'
+        ? provenance.excerpt
+        : null;
     if (ex && (entry.excerpt === null || ex.length > entry.excerpt.length)) entry.excerpt = ex;
     byValue.set(k, entry);
   }
